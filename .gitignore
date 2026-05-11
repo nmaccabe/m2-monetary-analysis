@@ -1,0 +1,5 @@
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+data/canada_m2_clean.csv
