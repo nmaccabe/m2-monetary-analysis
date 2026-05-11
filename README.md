@@ -9,7 +9,7 @@ m2-monetary-analysis/
 │   ├── M2SL.csv
 │   └── Canada_e1_monthly-sd-1946-01-01.csv
 ├── R/
-│   └── analysis.R
+│   └── US_CA_M2Growth.R
 ├── output/
 │   ├── findings_summary.txt
 │   └── figures/
