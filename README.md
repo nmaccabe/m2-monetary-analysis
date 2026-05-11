@@ -1,6 +1,39 @@
 # m2-monetary-analysis
 Independent reseach on US M2 and Canadian M2+ growth rates.
 
+## Repository Structure
+
+```
+m2-monetary-analysis/
+├── data/
+│   ├── M2SL.csv
+│   └── Canada_e1_monthly-sd-1946-01-01.csv
+├── R/
+│   └── analysis.R
+├── output/
+│   ├── findings_summary.txt
+│   └── figures/
+│       ├── ACFBoth.png
+│       ├── ACFResid.png
+│       ├── ARX1Can.png
+│       ├── ARX1Full.png
+│       ├── ARX1FullCan.png
+│       ├── ARX1US.png
+│       ├── CrisisGrowthDistributions.png
+│       ├── CrisisGrowthRates.png
+│       ├── CrisisRollingWindow.png
+│       ├── ECDF.png
+│       ├── FullGrowthDistributions.png
+│       ├── QQ.png
+│       ├── RollingWindowFull.png
+│       ├── YoYARX1Can.png
+│       ├── YoYARX1CanFull.png
+│       ├── YoYARX1US.png
+│       └── YoYARX1USFull.png
+├── .gitignore
+└── README.md
+```
+
 # US-Canada M2 Monetary Aggregate Analysis
 
 ## Key Findings
