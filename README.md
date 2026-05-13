@@ -11,6 +11,7 @@ m2-monetary-analysis/
 ├── R/
 │   └── US_CA_M2Growth.R
 ├── output/
+│   ├── findings_summary.md
 │   ├── findings_summary.txt
 │   └── figures/
 │       ├── ACFBoth.png
