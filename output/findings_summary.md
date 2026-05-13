@@ -249,7 +249,7 @@ YoY bidirectionality survives first differencing — **not spurious**.
 
 ## Distributional Analysis
 
-![Crisis Growth Distributions](output/figures/CrisisGrowthDistributions.png)
+![Crisis Growth Distributions](figures/CrisisGrowthDistributions.png)
 
 - **GFC:** Distributions similar in location and shape for both countries
 - **COVID:** US distribution flatter with fat right tail extending to 6%+ MoM; Canada distribution taller and narrower, concentrated around 0.5–1%
