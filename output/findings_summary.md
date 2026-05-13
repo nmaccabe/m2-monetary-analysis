@@ -210,7 +210,7 @@ YoY bidirectionality survives first differencing — **not spurious**.
 
 ## Rolling 24-Month Canada Coefficient (MoM ARX(1), Full Sample)
 
-![Rolling Window Full Sample](output/figures/RollingWindowFull.png)
+![Rolling Window Full Sample](figures/RollingWindowFull.png)
 
 | Period | Observation |
 |---|---|
