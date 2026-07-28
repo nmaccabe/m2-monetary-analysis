@@ -1,109 +1,162 @@
 # M2 Monetary Aggregate Growth Rate Analysis — Findings Summary
 
-**US M2SL vs Canada M2+ (Gross, Seasonally Adjusted)**  
-**Monthly Data: January 1970 — February 2026**  
-*Seed: `set.seed()` used for reproducibility of bootstrap Granger results*
+**US M2SL compared with Canada M2+ (gross, seasonally adjusted)**  
+**Monthly data: January 1970 to February 2026**  
+*The bootstrap Granger tests use `set.seed()` so that the results can be reproduced.*
+
+---
+
+## Main Finding
+
+US and Canadian money growth often move together during major crises, but the relationship is not consistently strong over time. The rolling 24-month estimates show that the connection becomes much stronger during periods such as the global financial crisis and COVID-19, then weakens soon afterward.
+
+This means Canada is not a reliable stand-in for what would have happened in the United States. The two countries have separate monetary systems, even though they sometimes respond to the same large economic shocks.
 
 ---
 
 ## Data
 
-| | US | Canada |
+| | United States | Canada |
 |---|---|---|
 | Series | FRED M2SL | Bank of Canada E1, V41552798 |
-| Units | Billions USD, seasonally adjusted | Millions CAD, seasonally adjusted |
-| Raw coverage | Jan 1959 — Mar 2026 | Jan 1968 — Feb 2026 |
-| Overlapping sample | January 1970 — February 2026 | January 1970 — February 2026 |
+| Units | Billions of USD, seasonally adjusted | Millions of CAD, seasonally adjusted |
+| Raw coverage | January 1959 to March 2026 | January 1968 to February 2026 |
+| Overlapping sample used | January 1970 to February 2026 | January 1970 to February 2026 |
 
-Growth rates computed as:
+Two growth measures are used:
 
-```
+```text
 MoM = (m2 / lag(m2, 1)  - 1) * 100
 YoY = (m2 / lag(m2, 12) - 1) * 100
 ```
 
-> **M2 Reclassification Note:** The May 2020 Fed reclassification moved savings deposits from non-M1 to M1 within M2. This was purely internal — the M2 aggregate level was unaffected. The COVID right tail is not a definitional artifact.
+- **Month-over-month (MoM)** measures the percentage change from the previous month.
+- **Year-over-year (YoY)** measures the percentage change from the same month one year earlier.
+
+> **May 2020 M2 reclassification:** The Federal Reserve moved savings deposits from non-M1 to M1, but both categories remained inside M2. The total M2 level was therefore unaffected. The unusually large positive observations during COVID-19 are not caused by this classification change.
 
 ---
 
 ## Event Windows
 
-| Event | Window | n (per country) |
+The analysis gives special attention to two crisis periods:
+
+| Event | Window | Observations per country |
 |---|---|---|
-| GFC | January 2006 — December 2011 | 72 |
-| COVID | January 2019 — December 2025 | 84 |
+| Global financial crisis (GFC) | January 2006 to December 2011 | 72 |
+| COVID-19 period | January 2019 to December 2025 | 84 |
 
 ---
 
-## Reframing Note
+## How to Read the Results
 
-Analysis framed as **comparative monetary analysis** rather than DFL counterfactual. Granger, VAR, and ARX results collectively argue against Canada being a credible counterfactual for the US — the two countries are largely independent monetary regimes that co-move during crises but are not exchangeable. The paper's central contribution is characterizing how the Canada-US monetary relationship evolves across crisis regimes, with the **rolling 24-month window coefficient as the centerpiece finding**.
+- A **coefficient** shows the estimated size and direction of a relationship.
+- A **p-value** measures how strongly the data reject a zero relationship. Smaller values provide stronger evidence.
+- `***`, `**`, and `*` mark progressively weaker conventional levels of statistical significance.
+- `(ns)` means the estimate is not statistically significant at the usual 5% level.
+- **R²** is the share of variation explained by a model. A high R² is not always proof that a model is useful, especially when variables overlap mechanically over time.
+- **Granger causality** means that past values of one series help predict another series. It does **not** prove true economic causation.
 
 ---
 
-## Simple OLS — MoM (Baseline)
+## Research Framing
+
+The project is best described as a **comparison of US and Canadian monetary growth**, rather than a formal counterfactual study.
+
+The ARX, VAR, and Granger results show that Canada is not a credible control group for the United States. The countries sometimes move together, especially during crises, but their monetary systems are not interchangeable.
+
+The central contribution is the analysis of how this relationship changes over time. The **rolling 24-month Canada coefficient** is the clearest result because it shows when the countries become more closely connected and when that connection breaks down.
+
+---
+
+## Simple OLS Model — Month-over-Month Growth
+
+The baseline model asks whether Canadian M2+ growth in a given month is associated with US M2 growth in the same month:
 
 $$US_t = \alpha + \beta_1 Canada_t + \epsilon_t$$
 
-| Window | Canada coef | p-value | R² |
+| Window | Canada coefficient | p-value | R² |
 |---|---|---|---|
 | GFC | 0.478 | 0.000484 *** | 0.161 |
 | COVID | 1.597 | < 2e-16 *** | 0.631 |
 
+The relationship is positive in both periods, but it is much stronger during COVID-19. The COVID model also explains a much larger share of monthly US M2 growth.
+
 ---
 
-## ARX(1) Model — MoM, Original Direction
+## ARX(1) Model — Predicting US Month-over-Month Growth
+
+An ARX model adds the previous month's US growth rate to the baseline model. This separates the relationship with Canada from the tendency of US money growth to continue from one month to the next.
 
 $$US_t = \alpha + \beta_1 Canada_t + \beta_2 US_{t-1} + \epsilon_t$$
 
-| Window | Canada coef | p-value | US lag coef | p-value | R² |
+| Window | Canada coefficient | p-value | US lag coefficient | p-value | R² |
 |---|---|---|---|---|---|
 | GFC | 0.380 | 0.0106 * | 0.192 | 0.1175 (ns) | 0.192 |
 | COVID | 1.077 | 5.85e-09 *** | 0.383 | 1.17e-05 *** | 0.712 |
-| Full Sample | 0.185 | 6.95e-10 *** | 0.587 | < 2e-16 *** | 0.462 |
+| Full sample | 0.185 | 6.95e-10 *** | 0.587 | < 2e-16 *** | 0.462 |
 
-**GFC:** Canada marginally significant. No meaningful US persistence. US largely on its own trajectory.
+**GFC:** The Canada coefficient is statistically significant, although only modestly so. The lagged US coefficient is not significant, which suggests little evidence that US monthly growth was persistent during this window.
 
-**COVID:** Strong co-movement and strong US persistence. 1pp Canadian growth associated with 1.08pp US growth.
+**COVID:** Canadian and US growth move closely together, and US growth also shows strong persistence. A 1 percentage-point increase in Canadian monthly M2+ growth is associated with about a 1.08 percentage-point increase in US M2 growth, holding the previous month's US growth constant.
 
-**Full Sample:** Canada has significant but secondary explanatory power. US is primarily autoregressive.
+**Full sample:** Canada provides statistically significant information, but its coefficient is much smaller than during COVID-19. US money growth is explained more strongly by its own previous value.
 
 ---
 
-## ARX(1) Model — MoM, Flipped Direction
+## ARX(1) Model — Predicting Canadian Month-over-Month Growth
+
+The direction is reversed here. The model asks whether current US M2 growth is associated with Canadian M2+ growth after accounting for Canada's previous monthly growth rate.
 
 $$Canada_t = \alpha + \beta_1 US_t + \beta_2 Canada_{t-1} + \epsilon_t$$
 
-| Window | US coef | p-value | Canada lag coef | p-value | R² |
+| Window | US coefficient | p-value | Canada lag coefficient | p-value | R² |
 |---|---|---|---|---|---|
 | GFC | 0.154 | 0.0384 * | 0.655 | 1.71e-10 *** | 0.542 |
 | COVID | 0.323 | 1.28e-10 *** | 0.217 | 0.0157 * | 0.659 |
-| Full Sample | 0.246 | 2.12e-13 *** | 0.490 | < 2e-16 *** | 0.378 |
+| Full sample | 0.246 | 2.12e-13 *** | 0.490 | < 2e-16 *** | 0.378 |
 
-> **Asymmetry finding:** The Canada coefficient in the US model (1.077, COVID) is much larger than the US coefficient in the Canada model (0.323, COVID). Both countries respond to the same contemporaneous shock, but the US responds with greater magnitude — reflecting the larger US fiscal and monetary policy response, not causal amplification.
+> **Asymmetry during COVID:** The Canada coefficient in the US model is 1.077, while the US coefficient in the Canada model is 0.323. Both countries appear to respond to the same large shock, but the US response is larger. This is consistent with the larger US fiscal and monetary expansion during COVID-19. It should not be interpreted as proof that Canada caused a larger US response.
 
 ---
 
-## Crisis ARX(1) — Full Sample With Crisis Dummy
+## ARX(1) Model With a Crisis Indicator
+
+This full-sample model adds a crisis indicator that equals one during the selected crisis periods and zero otherwise:
 
 $$US_t = \alpha + \beta_1 Canada_t + \beta_2 US_{t-1} + \beta_3 Crisis_t + \epsilon_t$$
 
-Crisis periods: Oil Shock (1973-10 to 1975-03), Volcker (1980-01 to 1982-12), Gulf War (1990-07 to 1991-03), Dot-com (2001-03 to 2002-12), GFC (2007-01 to 2011-12), COVID (2020-01 to 2023-12)
+The crisis periods are:
+
+- Oil shock: October 1973 to March 1975
+- Volcker period: January 1980 to December 1982
+- Gulf War: July 1990 to March 1991
+- Dot-com period: March 2001 to December 2002
+- Global financial crisis: January 2007 to December 2011
+- COVID-19: January 2020 to December 2023
 
 | Term | Estimate | p-value |
 |---|---|---|
 | Canada | 0.183 | 1.09e-09 *** |
 | US lag | 0.587 | < 2e-16 *** |
-| Crisis dummy | 0.016 | 0.615 (ns) |
+| Crisis indicator | 0.016 | 0.615 (ns) |
 | R² | 0.462 | |
 
-> Crisis dummy completely insignificant. Canada coefficient virtually unchanged from baseline ARX(1). The Canada-US relationship is **stable across regimes**.
+The crisis indicator is not statistically significant, and the Canada coefficient is almost unchanged from the basic full-sample ARX model.
+
+This does not mean that the Canada-US relationship is constant at every point in time. It means that a single indicator applied to several very different crises does not produce a common average shift. The rolling-window results below show substantial short-term changes that a single crisis indicator cannot capture.
 
 ---
 
-## MoM VAR and Granger Causality (Bootstrap, 1000 runs)
+## VAR and Granger Causality — Month-over-Month Growth
 
-**VAR residual normality (JB test) — all non-normal, bootstrap required:**
+A **vector autoregression (VAR)** models US and Canadian growth together, allowing the past values of both series to help predict each country.
+
+The Granger tests ask whether past values from one country improve predictions for the other country. Because the residuals are highly non-normal, the reported p-values come from 1,000 bootstrap runs rather than relying only on the usual parametric F-test.
+
+### Residual normality tests
+
+The Jarque-Bera (JB) test rejects normality in every window:
 
 | Window | JB statistic | p-value |
 |---|---|---|
@@ -111,135 +164,157 @@ Crisis periods: Oil Shock (1973-10 to 1975-03), Volcker (1980-01 to 1982-12), Gu
 | GFC | 35.003 | 4.638e-07 |
 | COVID | 194.45 | < 2.2e-16 |
 
-**Bootstrap Granger results:**
+### Bootstrap Granger results
 
-| Window | Canada→US | US→Canada | Instantaneous |
+| Window | Canada → US | US → Canada | Instantaneous relationship |
 |---|---|---|---|
-| Full Sample | p = 0.143 (ns) | p = 0.007 ** | p = 7.15e-10 *** |
+| Full sample | p = 0.143 (ns) | p = 0.007 ** | p = 7.15e-10 *** |
 | GFC | p = 0.279 (ns) | p = 0.174 (ns) | p = 0.090 (ns) |
 | COVID | p = 0.048 * | p = 0.031 * | p = 9.779e-06 *** |
 
-> **GFC Note:** Parametric Canada→US p-value was 0.0497 — false positive due to non-normality. Bootstrap (p = 0.279) correctly fails to reject. Illustrates the importance of bootstrap Granger over standard F-test with non-normal residuals.
+> **Why the bootstrap matters:** For the GFC, the ordinary parametric Canada-to-US test gives a p-value of 0.0497, which would normally be treated as significant. The bootstrap p-value is 0.279, so the result is no longer significant after accounting for the non-normal residuals. The standard test therefore appears to produce a false positive in this case.
 
-**Key finding (MoM):** Over the full sample the US reliably Granger-causes Canada but Canada does not. During COVID both directions marginally significant. During GFC neither direction significant. Instantaneous causality is the dominant channel.
+**Main month-over-month result:**
 
----
-
-## Impulse Response Functions — MoM
-
-**GFC (Canada shock → US response):**
-
-| Period | Response |
-|---|---|
-| t=1 | 0.000 (by construction) |
-| t=2 | 0.071 (peak) |
-| t=13 | 0.003 |
-
-Lower CI positive throughout — statistically significant positive response.
-
-**COVID (Canada shock → US response):**
-
-| Period | Response |
-|---|---|
-| t=1 | 0.000 (by construction) |
-| t=2 | 0.166 (peak) |
-| t=4 | -0.041 (oscillates) |
-
-Wide confidence bands crossing zero — statistically uncertain.
+- Across the full sample, past US growth helps predict Canadian growth, but past Canadian growth does not reliably predict US growth.
+- During COVID-19, both directions are marginally significant.
+- During the GFC, neither direction is significant.
+- The strongest and most consistent relationship is contemporaneous: the two countries often react within the same month rather than through a clear lagged transmission process.
 
 ---
 
-## YoY VAR and Granger Causality (Bootstrap, 1000 runs)
+## Impulse Response Functions — Month-over-Month Growth
 
-**VAR residual normality:**
+An **impulse response function (IRF)** estimates how one series responds over time after an unexpected change, or “shock,” in the other series.
+
+### GFC: Canadian shock followed by the US response
+
+| Period | Response |
+|---|---|
+| t = 1 | 0.000, by construction |
+| t = 2 | 0.071, peak response |
+| t = 13 | 0.003 |
+
+The lower confidence bound remains above zero throughout the response period. This indicates a statistically significant positive US response to a Canadian shock in the GFC model.
+
+### COVID: Canadian shock followed by the US response
+
+| Period | Response |
+|---|---|
+| t = 1 | 0.000, by construction |
+| t = 2 | 0.166, peak response |
+| t = 4 | -0.041, showing an oscillating response |
+
+The confidence bands are wide and cross zero. The estimated response is therefore statistically uncertain even though the point estimate is larger than in the GFC model.
+
+---
+
+## VAR and Granger Causality — Year-over-Year Growth
+
+The same VAR and bootstrap Granger approach is also applied to year-over-year growth.
+
+### Residual normality tests
 
 | Window | JB statistic | p-value |
 |---|---|---|
-| GFC | 6.28 | 0.179 — **passes normality** |
+| GFC | 6.28 | 0.179 — passes normality |
 | COVID | 97.94 | < 2.2e-16 |
 | Full sample | 4,581.7 | < 2.2e-16 |
 
-**Bootstrap Granger — YoY levels:**
+Only the GFC year-over-year model passes the normality test.
 
-| Window | Canada→US | US→Canada | Instantaneous |
+### Bootstrap Granger results using year-over-year levels
+
+| Window | Canada → US | US → Canada | Instantaneous relationship |
 |---|---|---|---|
-| Full Sample | p = 0.022 * | p < 2.2e-16 *** | p = 1.491e-07 *** |
-| GFC | p = 0.074 (90%) | p = 0.820 (ns) | p = 0.015 * |
+| Full sample | p = 0.022 * | p < 2.2e-16 *** | p = 1.491e-07 *** |
+| GFC | p = 0.074, significant at the 10% level (90% confidence) | p = 0.820 (ns) | p = 0.015 * |
 | COVID | p = 0.003 ** | p = 0.013 * | p = 8.15e-06 *** |
 
-**Bootstrap Granger — YoY first differenced:**
+### Bootstrap Granger results using first-differenced year-over-year growth
 
-| Window | Canada→US | US→Canada | Instantaneous |
+First differencing measures the change in the year-over-year growth rate from one month to the next. This check helps determine whether the original year-over-year result is caused only by persistence in the series.
+
+| Window | Canada → US | US → Canada | Instantaneous relationship |
 |---|---|---|---|
-| Full Sample | p = 0.018 * | p = 0.002 ** | p = 7.598e-08 *** |
-| GFC | p = 0.093 (90%) | p = 0.310 (ns) | p = 0.007 ** |
+| Full sample | p = 0.018 * | p = 0.002 ** | p = 7.598e-08 *** |
+| GFC | p = 0.093, significant at the 10% level (90% confidence) | p = 0.310 (ns) | p = 0.007 ** |
 | COVID | p = 0.004 ** | p = 0.024 * | p = 1.743e-05 *** |
 
-YoY bidirectionality survives first differencing — **not spurious**.
+The two-way predictive relationship in year-over-year growth remains after first differencing. This suggests that it is not only a spurious result caused by highly persistent year-over-year series.
 
-**MoM vs YoY contrast:**
-- **Short run (MoM):** US leads Canada unidirectionally over full sample
-- **Medium term (YoY):** Bidirectional feedback over full sample and COVID
-- **GFC YoY:** Canada weakly leads US — opposite direction to MoM
+### Month-over-month compared with year-over-year results
+
+- **Short run, measured by MoM:** The US leads Canada in the full sample, while Canada does not reliably lead the US.
+- **Medium term, measured by YoY:** The relationship is two-way in the full sample and during COVID-19.
+- **GFC YoY result:** Canada weakly leads the US, which is the opposite direction from the full-sample MoM result.
 
 ---
 
-## ARX(1) Model — YoY
+## ARX(1) Model — Year-over-Year Growth
 
-> ⚠️ **Important Methodological Note on YoY ARX(1)**
+> **Important warning about the year-over-year ARX results**
 >
-> The artificially high R² values in the YoY ARX(1) models are a **mechanical artifact**, not evidence of strong model fit. YoY growth at month *t* shares 11 of 12 months with YoY growth at month *t-1*. This means the lagged dependent variable contains 11/12 of the same information as the current value by construction. The lag coefficient approaches 1.0 and R² inflates toward 1.0 regardless of whether Canada has genuine explanatory power. This is confirmed by the full sample result where the Canada coefficient is statistically insignificant (p = 0.312) despite R² of 0.971. **MoM is the preferred specification.**
+> The very high R² values in these models are mainly a mechanical feature of year-over-year growth, not proof of exceptional model performance. Growth at month *t* compares the current month with the same month one year earlier. Growth at month *t - 1* uses 11 of the same 12 underlying months. The current and lagged growth rates therefore share most of their information by construction.
+>
+> This overlap pushes the lag coefficient toward 1.0 and can push R² close to 1.0 even when the Canadian variable adds little useful information. In the full-sample US model, for example, the Canada coefficient is not statistically significant (`p = 0.312`) even though R² is 0.971. For this reason, **month-over-month growth is the preferred ARX specification**.
 
-**Original direction (US ~ Canada + US lag):**
+### Predicting US year-over-year growth
 
-| Window | Canada coef | p-value | R² |
+| Window | Canada coefficient | p-value | R² |
 |---|---|---|---|
 | GFC | -0.030 | 0.397 (ns) | 0.914 ⚠️ |
 | COVID | 0.571 | 1.79e-07 *** | 0.979 ⚠️ |
-| Full Sample | 0.006 | 0.312 (ns) | 0.971 ⚠️ |
+| Full sample | 0.006 | 0.312 (ns) | 0.971 ⚠️ |
 
-**Flipped direction (Canada ~ US + Canada lag):**
+### Predicting Canadian year-over-year growth
 
-| Window | US coef | p-value | R² |
+| Window | US coefficient | p-value | R² |
 |---|---|---|---|
 | GFC | 0.133 | 0.000182 *** | 0.975 ⚠️ |
 | COVID | 0.106 | 0.000555 *** | 0.973 ⚠️ |
-| Full Sample | 0.022 | 0.000733 *** | 0.985 ⚠️ |
+| Full sample | 0.022 | 0.000733 *** | 0.985 ⚠️ |
 
 ---
 
-## Rolling 24-Month Canada Coefficient (MoM ARX(1), Full Sample)
+## Rolling 24-Month Canada Coefficient
+
+This analysis repeatedly estimates the month-over-month US ARX model using only the most recent 24 months of data. It shows how the estimated Canadian coefficient changes over time instead of forcing one average relationship onto the entire sample.
 
 ![Rolling Window Full Sample](figures/RollingWindowFull.png)
 
-| Period | Observation |
+| Period | What the estimate shows |
 |---|---|
-| Pre-2000 | Coefficient oscillates around zero — no persistent relationship |
-| 2003–2006 | Drifts positive — increasing integration pre-GFC |
-| GFC | Spikes to ~1.5 then collapses to ~-1.2 by 2011 |
-| COVID | Largest positive spike in 57-year sample (~2.0), collapses post-2022 |
+| Before 2000 | The coefficient moves around zero, with no lasting relationship |
+| 2003 to 2006 | The coefficient gradually becomes positive before the GFC |
+| GFC | It rises to about 1.5, then falls to about -1.2 by 2011 |
+| COVID | It reaches the largest positive value in the 57-year sample, about 2.0, then falls sharply after 2022 |
 
-> **Key finding:** Canada-US monetary coupling is episodic and crisis-driven, not structural. The relationship breaks down quickly after each crisis.
+> **Central finding:** The connection between Canadian and US money growth is temporary and strongly affected by crisis periods. It is not a stable, permanent relationship. After each major crisis, the estimated connection weakens quickly.
 
 ---
 
-## Normality Tests (JB)
+## Distribution and Normality Tests
 
-**MoM series — non-normal across all windows:**
+### Month-over-month growth
 
-| Window | JB | p-value |
+The JB test rejects a normal distribution in every window:
+
+| Window | JB statistic | p-value |
 |---|---|---|
 | Full sample | 18,059 | < 2.2e-16 |
 | GFC | 35.003 | 4.638e-07 |
 | COVID | 194.45 | < 2.2e-16 |
 
-- US 99th percentile MoM: 5.31% vs Canada 99th percentile: 2.35%
-- Distributions nearly identical up to 95th percentile
-- Divergence concentrated in extreme tail observations only
+Additional distribution results:
 
-**YoY series:**
+- The 99th percentile of US monthly growth is 5.31%, compared with 2.35% for Canada.
+- The distributions are nearly identical up to the 95th percentile.
+- Most of the difference comes from a small number of extreme observations in the right tail.
 
-| Window | JB | p-value |
+### Year-over-year growth
+
+| Window | JB statistic | p-value |
 |---|---|---|
 | GFC | 6.28 | 0.179 — normal ✓ |
 | COVID | 97.94 | < 2.2e-16 |
@@ -247,43 +322,43 @@ YoY bidirectionality survives first differencing — **not spurious**.
 
 ---
 
-## Distributional Analysis
+## Crisis Growth Distributions
 
 ![Crisis Growth Distributions](figures/CrisisGrowthDistributions.png)
 
-- **GFC:** Distributions similar in location and shape for both countries
-- **COVID:** US distribution flatter with fat right tail extending to 6%+ MoM; Canada distribution taller and narrower, concentrated around 0.5–1%
-- Distributional difference concentrated in extreme right tail (99th+ percentile)
-- Not a wholesale distributional shift — bulk of distributions nearly identical
+- **GFC:** The US and Canadian distributions have similar centres and shapes.
+- **COVID:** The US distribution is flatter and has a large right tail extending beyond 6% monthly growth. The Canadian distribution is taller and narrower, with most observations concentrated around 0.5% to 1.0%.
+- The difference is concentrated mainly above the 99th percentile.
+- The overall distributions did not shift apart completely. Most observations remain fairly similar, with the largest difference coming from a small number of extreme US values.
 
 ---
 
 ## Limitations
 
-1. Window selection is arbitrary — results may be sensitive to different dates
-2. Exchange rate channel ignored — CAD/USD movements affect comparability
-3. Canada was not unaffected by US spillovers — not a clean control
-4. M2 vs M2+ definitional differences remain despite best available matching
-5. Both series seasonally adjusted by different agencies using different methods
-6. Rolling window estimates use only 24 observations — wide uncertainty bands
-7. Small sample in event windows (72–84 obs) — thin for VAR estimation
-8. Crisis dummy insignificance may reflect cancellation across heterogeneous events
-9. Bootstrap Granger p-values vary slightly across runs despite seeding — treat as approximate
+1. The crisis windows are chosen by the researcher, so different start and end dates could change the results.
+2. The analysis does not model the CAD/USD exchange rate, even though exchange-rate movements may affect comparisons between the countries.
+3. Canada was exposed to US spillovers and is therefore not a clean, unaffected control group.
+4. US M2 and Canadian M2+ are the closest available measures, but they are not defined in exactly the same way.
+5. The Federal Reserve and the Bank of Canada seasonally adjust their series separately and may use different methods.
+6. Each rolling estimate uses only 24 observations, which creates wide uncertainty bands.
+7. The event windows contain only 72 to 84 observations per country, which is a small sample for VAR estimation.
+8. The insignificant crisis indicator may combine several crises with different effects that cancel one another out on average.
+9. Bootstrap Granger p-values can change slightly across runs even with a fixed seed, so they should be treated as approximate.
 
 ---
 
-## Robustness
+## Robustness Checks
 
-- Full sample (Jan 1970 — Feb 2026) results consistent with event windows
-- Bootstrap Granger robust to non-normality — corrected false positive in GFC
-- ARX(1) residual ACF shows white noise in both event windows — model well specified
-- M2 reclassification confirmed not to affect aggregate M2 level
-- Crisis ARX(1) confirms Canada coefficient stable across regimes (crisis dummy p = 0.615)
-- Both MoM and YoY specifications estimated — directional findings consistent
-- Both directions of ARX(1) estimated — asymmetry confirmed
-- YoY bidirectionality survives first differencing — confirmed not spurious
+- The full-sample results from January 1970 to February 2026 are broadly consistent with the event-window results.
+- Bootstrap Granger tests account for non-normality and correct the apparent GFC false positive from the standard parametric test.
+- The residual autocorrelation functions for the ARX(1) models show approximately white-noise residuals in both event windows, supporting the model specification.
+- The May 2020 Federal Reserve reclassification does not change the total M2 level.
+- The crisis ARX model leaves the Canada coefficient almost unchanged and gives a crisis-indicator p-value of 0.615.
+- Both month-over-month and year-over-year models are estimated, and their directional results are broadly consistent once their different time horizons are recognized.
+- Both directions of the ARX model are estimated, confirming that the relationship is asymmetric.
+- The two-way year-over-year Granger result remains after first differencing, which suggests that it is not purely spurious.
 
 ---
 
 *Author: N. MacCabe — Independent Research, May 2026*  
-*Repo: https://github.com/nmaccabe/m2-monetary-analysis*
+*Repository: https://github.com/nmaccabe/m2-monetary-analysis*
